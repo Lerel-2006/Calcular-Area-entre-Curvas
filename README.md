@@ -1,5 +1,3 @@
-# Calcular-Area-entre-Curvas
-
 # Calculadora de Área entre Curvas
 
 ## Sobre o projeto
