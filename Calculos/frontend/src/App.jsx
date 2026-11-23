@@ -174,11 +174,17 @@ function App() {
                     <p>Função superior: {area.superior}</p>
                     <p>Função inferior: {area.inferior}</p>
                     <p>Área: {area.area}</p>
+
                   </div>
                 ))
+                
               ) : (
                 <p>Nenhuma área delimitada encontrada.</p>
               )}
+              <div className="area-total">
+                <h3>Área total</h3>
+                <p>{resultado.area_total} {resultado.unidade}</p>
+            </div>
             </div>
           )}
         </section>

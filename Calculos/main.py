@@ -37,8 +37,8 @@ def gerar_pontos(f, g, intersecoes, limites=None):
             pontos.append(float(sp.N(ponto)))
 
     if limites is not None:
-        inicio = float(sp.N(limites[0]))
-        fim = float(sp.N(limites[1]))
+        inicio = min(float(sp.N(limites[0])) - 5, -10)
+        fim = max(float(sp.N(limites[1])) + 5, 10)
 
     elif pontos:
         inicio = min(pontos) - 1
@@ -114,6 +114,16 @@ def calcular(dados: FuncoesEntrada):
                     limites[1]
                 )
 
+                # Filtra as interseções pelo intervalo manual
+                intersecoes = [
+                    ponto for ponto in (intersecoes or [])
+                    if (
+                        ponto.is_real
+                        and float(sp.N(ponto)) >= float(sp.N(limites[0]))
+                        and float(sp.N(ponto)) <= float(sp.N(limites[1]))
+                    )
+                ]
+
             except (ValueError, TypeError) as erro:
                 raise HTTPException(
                     status_code=400,
@@ -128,7 +138,10 @@ def calcular(dados: FuncoesEntrada):
                 return {
                     "mensagem": "As duas funções são iguais. Existem infinitos pontos de interseção.",
                     "intersecoes": [],
+                    "pontos_intersecao": [],
                     "areas": [],
+                    "area_total": "0",
+                    "unidade": "u.a.",
                     "grafico": grafico
                 }
 
@@ -140,6 +153,7 @@ def calcular(dados: FuncoesEntrada):
                 detail="Modo de cálculo inválido."
             )
 
+        # Gera os pontos do gráfico
         grafico = gerar_pontos(
             f,
             g,
@@ -147,10 +161,34 @@ def calcular(dados: FuncoesEntrada):
             limites
         )
 
+        # Calcula as coordenadas dos pontos de interseção
+        pontos_intersecao = []
+
+        x = sp.Symbol("x")
+
+        for ponto in (intersecoes or []):
+
+            if ponto.is_real:
+                valor_x = float(sp.N(ponto))
+                valor_y = sp.N(f.subs(x, ponto))
+
+                if valor_y.is_real and valor_y.is_finite:
+                    pontos_intersecao.append({
+                        "x": valor_x,
+                        "y": float(valor_y)
+                    })
+
+        # Soma todas as áreas encontradas
+        area_total = sp.simplify(
+            sum(area["area"] for area in areas)
+        )
+
         return {
             "intersecoes": [
                 str(ponto) for ponto in (intersecoes or [])
             ],
+
+            "pontos_intersecao": pontos_intersecao,
 
             "areas": [
                 {
@@ -162,6 +200,9 @@ def calcular(dados: FuncoesEntrada):
                 }
                 for area in areas
             ],
+
+            "area_total": str(area_total),
+            "unidade": "u.a.",
 
             "grafico": grafico
         }

@@ -22,7 +22,7 @@ def distancia(fx, gx):
     else:
         intersecoes = []
 
-        for tentativa in [-10, -5, -2, -1, 0, 0.5, 1, 2, 5, 10]:
+        for tentativa in [-10, -5, -2,-0.5, -1, 0, 0.5, 1, 2, 5, 10]:
             try:
                 raiz = sp.nsolve(equacao, x, tentativa)
 

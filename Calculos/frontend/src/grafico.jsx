@@ -1,4 +1,3 @@
-
 import Plot from 'react-plotly.js';
 
 function Grafico({ fx, gx, resultado }) {
@@ -24,6 +23,19 @@ function Grafico({ fx, gx, resultado }) {
       mode: 'lines',
       name: gx,
       line: { color: '#f59e0b' }
+    },
+    {
+      // Mostra os pontos de interseção
+      x: resultado.pontos_intersecao?.map(p => p.x) || [],
+      y: resultado.pontos_intersecao?.map(p => p.y) || [],
+      type: 'scatter',
+      mode: 'markers',
+      name: 'Interseções',
+      marker: {
+        color: 'red',
+        size: 10,
+        symbol: 'circle'
+      }
     }
   ];
 

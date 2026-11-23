@@ -1,6 +1,28 @@
 import sympy as sp
 
 
+def avaliar_funcao(funcao, x, ponto):
+
+    valor = sp.N(funcao.subs(x, ponto))
+#Sp.n tensforma em valor numercico
+    if valor.is_real is not True or valor.is_finite is not True:
+        raise ValueError(
+            "Uma das funções não está definida em todo o intervalo."
+        )
+
+    return valor
+
+
+def verificar_area(area):
+
+    valor = sp.N(area)
+
+    if valor.is_real is not True or valor.is_finite is not True:
+        raise ValueError(
+            "Não foi possível calcular uma área finita nesse intervalo."
+        )
+
+
 def calcular_areas(fx, gx, distancia):
     x = sp.Symbol("x")
 
@@ -20,10 +42,10 @@ def calcular_areas(fx, gx, distancia):
 
         meio = (inicio + fim) / 2
 
-        v1 = fx.subs(x, meio)
-        v2 = gx.subs(x, meio)
+        v1 = avaliar_funcao(fx, x, meio)
+        v2 = avaliar_funcao(gx, x, meio)
 
-        if sp.N(v1) > sp.N(v2):
+        if v1 > v2:
             cima = fx
             baixo = gx
         else:
@@ -34,6 +56,8 @@ def calcular_areas(fx, gx, distancia):
             cima - baixo,
             (x, inicio, fim)
         )
+
+        verificar_area(area)
 
         resultados.append({
             "inicio": inicio,
@@ -56,7 +80,9 @@ def calcular_area_intervalo(fx, gx, inicio, fim):
         raise ValueError("Os limites precisam ser números reais.")
 
     if sp.N(inicio) >= sp.N(fim):
-        raise ValueError("O limite inicial precisa ser menor que o final.")
+        raise ValueError(
+            "O limite inicial precisa ser menor que o final."
+        )
 
     diferenca = fx - gx
 
@@ -83,17 +109,23 @@ def calcular_area_intervalo(fx, gx, inicio, fim):
 
         meio = (a + b) / 2
 
-        valor_fx = fx.subs(x, meio)
-        valor_gx = gx.subs(x, meio)
+        valor_fx = avaliar_funcao(fx, x, meio)
+        valor_gx = avaliar_funcao(gx, x, meio)
 
-        if sp.N(valor_fx) >= sp.N(valor_gx):
+        if valor_fx >= valor_gx:
             cima = fx
             baixo = gx
         else:
             cima = gx
             baixo = fx
 
-        area = sp.integrate(cima - baixo, (x, a, b))
+        area = sp.integrate(
+            cima - baixo,
+            (x, a, b)
+        )
+
+        # Verifica se a área é válida
+        verificar_area(area)
 
         resultados.append({
             "inicio": a,
