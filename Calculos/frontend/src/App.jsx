@@ -33,7 +33,7 @@ function App() {
     }
 
     try {
-      const resposta = await fetch('http://127.0.0.1:8000/calcular', {
+      const resposta = await fetch('https://calculadora-area-api.onrender.com/calcular', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
