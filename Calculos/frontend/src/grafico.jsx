@@ -10,7 +10,7 @@ function Grafico({ fx, gx, resultado }) {
 
   const dados = [];
 
-  // Cria o preenchimento vermelho de cada área calculada
+  // Preenchimento das áreas calculadas
   (resultado.regioes_grafico || []).forEach((regiao, indice) => {
     dados.push({
       x: regiao.x,
@@ -30,7 +30,7 @@ function Grafico({ fx, gx, resultado }) {
       mode: 'lines',
       line: { color: 'rgba(0,0,0,0)' },
       fill: 'tonexty',
-      fillcolor: 'rgba(255, 0, 0, 0.65)',     
+      fillcolor: 'rgba(255, 0, 0, 0.65)',
       showlegend: false,
       hoverinfo: 'skip'
     });
@@ -58,32 +58,39 @@ function Grafico({ fx, gx, resultado }) {
 
   // Pontos de interseção
   dados.push({
-    x: resultado.pontos_intersecao?.map(p => p.x) || [],
-    y: resultado.pontos_intersecao?.map(p => p.y) || [],
+    x: (resultado.pontos_intersecao || []).map(p => Number(p.x)),
+    y: (resultado.pontos_intersecao || []).map(p => Number(p.y)),
     type: 'scatter',
     mode: 'markers',
     name: 'Interseções',
     marker: {
       color: 'red',
-      size: 10,
-      symbol: 'circle'
-    }
+      size: 14,
+      symbol: 'circle',
+      line: {
+        color: '#ffffff',
+        width: 2
+      }
+    },
+    visible: true
   });
 
   return (
-    <Plot
-      data={dados}
-      layout={{
-        title: 'Gráfico das funções',
-        xaxis: { title: 'Eixo X', zeroline: true },
-        yaxis: { title: 'Eixo Y', zeroline: true },
-        autosize: true,
-        margin: { t: 50, r: 30, b: 50, l: 50 }
-      }}
-      style={{ width: '100%' }}
-      useResizeHandler={true}
-      config={{ responsive: true }}
-    />
+    <div style={{ width: '100%', minWidth: 0, height: '400px' }}>
+      <Plot
+        data={dados}
+        layout={{
+          title: 'Gráfico das funções',
+          xaxis: { title: 'Eixo X', zeroline: true },
+          yaxis: { title: 'Eixo Y', zeroline: true },
+          autosize: true,
+          margin: { t: 50, r: 30, b: 50, l: 50 }
+        }}
+        style={{ width: '100%', height: '100%' }}
+        useResizeHandler={true}
+        config={{ responsive: true }}
+      />
+    </div>
   );
 }
 
