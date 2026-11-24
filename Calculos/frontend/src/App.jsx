@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import './App.css';
 import Grafico from './grafico';
@@ -81,6 +80,7 @@ function App() {
               type="text"
               value={fx}
               onChange={(evento) => setFx(evento.target.value)}
+              placeholder="Ex: x**2 + 3*x"
             />
           </div>
 
@@ -90,6 +90,7 @@ function App() {
               type="text"
               value={gx}
               onChange={(evento) => setGx(evento.target.value)}
+              placeholder="Ex: 2*x + 4"
             />
           </div>
 
@@ -97,10 +98,23 @@ function App() {
             <label>Modo de cálculo</label>
             <select
               value={modo}
-              onChange={(evento) => setModo(evento.target.value)}
+              onChange={(evento) => {
+                setModo(evento.target.value);
+                setResultado(null);
+                setErro('');
+              }}
             >
-              <option value="automatico">Automático - encontrar interseções</option>
-              <option value="manual">Manual - escolher intervalo</option>
+              <option value="automatico">
+                Automático - encontrar interseções
+              </option>
+
+              <option value="manual">
+                Manual - escolher intervalo
+              </option>
+
+              <option value="indefinida">
+                Integral indefinida
+              </option>
             </select>
           </div>
 
@@ -131,22 +145,42 @@ function App() {
           )}
 
           <button onClick={calcularArea}>
-            Calcular área
+            {modo === 'indefinida' ? 'Calcular integrais' : 'Calcular área'}
           </button>
         </section>
 
         <section className="resultado">
-          <h2>Gráfico e resultados</h2>
-
-          <Grafico
-            fx={fx}
-            gx={gx}
-            resultado={resultado}
-          />
+          <h2>
+            {modo === 'indefinida'
+              ? 'Resultado das integrais'
+              : 'Gráfico e resultados'}
+          </h2>
 
           {erro && <p className="erro">{erro}</p>}
 
-          {resultado && (
+          {modo !== 'indefinida' && (
+            <Grafico
+              fx={fx}
+              gx={gx}
+              resultado={resultado}
+            />
+          )}
+
+          {modo === 'indefinida' && resultado && (
+            <div className="resultado-integrais">
+              <h3>Integral de f(x)</h3>
+              <p>
+                ∫ f(x) dx = {resultado.integral_fx}
+              </p>
+
+              <h3>Integral de g(x)</h3>
+              <p>
+                ∫ g(x) dx = {resultado.integral_gx}
+              </p>
+            </div>
+          )}
+
+          {modo !== 'indefinida' && resultado && (
             <div>
               {resultado.mensagem ? (
                 <p>{resultado.mensagem}</p>
@@ -165,26 +199,27 @@ function App() {
               <h3>Áreas encontradas</h3>
 
               {resultado.areas.length > 0 ? (
-                resultado.areas.map((area, indice) => (
-                  <div className="area-item" key={indice}>
-                    <p>
-                      Intervalo: {area.inicio} até {area.fim}
-                    </p>
+                <>
+                  {resultado.areas.map((area, indice) => (
+                    <div className="area-item" key={indice}>
+                      <p>
+                        Intervalo: {area.inicio} até {area.fim}
+                      </p>
 
-                    <p>Função superior: {area.superior}</p>
-                    <p>Função inferior: {area.inferior}</p>
-                    <p>Área: {area.area}</p>
+                      <p>Função superior: {area.superior}</p>
+                      <p>Função inferior: {area.inferior}</p>
+                      <p>Área: {area.area} u.a.</p>
+                    </div>
+                  ))}
 
+                  <div className="area-total">
+                    <h3>Área total</h3>
+                    <p>{resultado.area_total} {resultado.unidade}</p>
                   </div>
-                ))
-                
+                </>
               ) : (
                 <p>Nenhuma área delimitada encontrada.</p>
               )}
-              <div className="area-total">
-                <h3>Área total</h3>
-                <p>{resultado.area_total} {resultado.unidade}</p>
-            </div>
             </div>
           )}
         </section>

@@ -6,7 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from Funcoes import interpretar_funcao
 from Distancia import distancia
-from Integral import calcular_areas, calcular_area_intervalo
+from Integral import (
+    calcular_areas,
+    calcular_area_intervalo,
+    calcular_integral_indefinida
+)
 
 app = FastAPI()
 
@@ -82,12 +86,70 @@ def gerar_pontos(f, g, intersecoes, limites=None):
     }
 
 
+def gerar_regioes(areas):
+    x = sp.Symbol("x")
+
+    regioes = []
+
+    for area in areas:
+        inicio = float(sp.N(area["inicio"]))
+        fim = float(sp.N(area["fim"]))
+
+        superior = area["superior"]
+        inferior = area["inferior"]
+
+        valores_x = []
+        valores_superior = []
+        valores_inferior = []
+
+        for i in range(101):
+            valor_x = inicio + (fim - inicio) * i / 100
+
+            valores_x.append(valor_x)
+
+            try:
+                y_superior = sp.N(superior.subs(x, valor_x))
+                y_inferior = sp.N(inferior.subs(x, valor_x))
+
+                if y_superior.is_real and y_superior.is_finite:
+                    valores_superior.append(float(y_superior))
+                else:
+                    valores_superior.append(None)
+
+                if y_inferior.is_real and y_inferior.is_finite:
+                    valores_inferior.append(float(y_inferior))
+                else:
+                    valores_inferior.append(None)
+
+            except (TypeError, ValueError):
+                valores_superior.append(None)
+                valores_inferior.append(None)
+
+        regioes.append({
+            "x": valores_x,
+            "superior": valores_superior,
+            "inferior": valores_inferior
+        })
+
+    return regioes
+
+
 @app.post("/calcular")
 def calcular(dados: FuncoesEntrada):
 
     try:
         f = interpretar_funcao(dados.fx)
         g = interpretar_funcao(dados.gx)
+
+        # Modo de integral indefinida
+        if dados.modo == "indefinida":
+
+            resultado = calcular_integral_indefinida(f, g)
+
+            return {
+                "integral_fx": str(resultado["integral_fx"]) + " + C",
+                "integral_gx": str(resultado["integral_gx"]) + " + C"
+            }
 
         intersecoes = distancia(f, g)
 
@@ -142,7 +204,8 @@ def calcular(dados: FuncoesEntrada):
                     "areas": [],
                     "area_total": "0",
                     "unidade": "u.a.",
-                    "grafico": grafico
+                    "grafico": grafico,
+                    "regioes_grafico": []
                 }
 
             areas = calcular_areas(f, g, intersecoes)
@@ -160,6 +223,9 @@ def calcular(dados: FuncoesEntrada):
             intersecoes if intersecoes is not None else [],
             limites
         )
+
+        # Gera os pontos das regiões que serão pintadas
+        regioes_grafico = gerar_regioes(areas)
 
         # Calcula as coordenadas dos pontos de interseção
         pontos_intersecao = []
@@ -204,7 +270,8 @@ def calcular(dados: FuncoesEntrada):
             "area_total": str(area_total),
             "unidade": "u.a.",
 
-            "grafico": grafico
+            "grafico": grafico,
+            "regioes_grafico": regioes_grafico
         }
 
     except HTTPException:

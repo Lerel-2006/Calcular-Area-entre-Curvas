@@ -134,5 +134,18 @@ def calcular_area_intervalo(fx, gx, inicio, fim):
             "inferior": baixo,
             "area": sp.simplify(area)
         })
+        
 
     return resultados
+
+
+def calcular_integral_indefinida(fx, gx):
+    x = sp.Symbol("x")
+
+    integral_fx = sp.integrate(fx, x)
+    integral_gx = sp.integrate(gx, x)
+
+    return {
+        "integral_fx": integral_fx,
+        "integral_gx": integral_gx
+    }
