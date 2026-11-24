@@ -80,7 +80,6 @@ function App() {
               type="text"
               value={fx}
               onChange={(evento) => setFx(evento.target.value)}
-              placeholder="Ex: x**2 + 3*x"
             />
           </div>
 
@@ -90,7 +89,6 @@ function App() {
               type="text"
               value={gx}
               onChange={(evento) => setGx(evento.target.value)}
-              placeholder="Ex: 2*x + 4"
             />
           </div>
 
